@@ -151,30 +151,56 @@
             </table>
           </div>
         </div>
-        <b-modal id="modal_detail" ref="modal" title="Detail Transaksi" size="md" hide-footer="true">
-          <a class="btn btn-success" @click="cetak()">Cetak</a>
-          <div id="print">
-            <table class="table">
-              <tr>
-                <th>Jenis</th>
-                <th>Berat</th>
-                <th>Sub total</th>
-              </tr>
-              <tr v-for="trs in detail_transaksi" :key="trs" id="print">
-                <td>{{ trs.jenis }}</td>
-                <td>{{ trs.weight }}</td>
-                <td>{{ trs.sub_total }}</td>
-              </tr>
-            </table>
-            <div class="text-right">
-              <h4>Total: Rp{{ total }}</h4>
-            </div>
-          </div>
+
+        <!-- Form Modal -->
+        <b-modal id="modal_detail" ref="modal" title="Detail Transaksi" size="lg" hide-footer="true">
+          <a href="#" class="btn btn-sm  bg-gradient-info" @click="cetak()"><i class="mdi mdi-printer"></i>Print</a>
+        <div class="table-responsive" id="print">
+          <table class=" align-center">
+            <tr>
+              <td>
+                Kasir : {{ username }}
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Outlet : {{ nama_outlet }}
+              </td>
+            </tr>
+            <tr rowspan="2"><img src="src/assets/img/machine-of-death.png" width="100"></tr>
+          </table>
+
+      <br>
+
+       <table class="table">
+        <tr>
+          <th> No. </th>
+          <th> Jenis Paket</th>
+          <th> Berat</th>
+          <th> Sub Total</th>
+        </tr>
+
+        <tr v-for="(det, index) in detail_transaksi" :key="index">
+          <td>{{ index + 1 }}</td>
+          <td>{{ det.jenis }}</td>
+          <td>{{ det.weight }}</td>
+          <td> Rp {{ det.sub_total }}</td>
+        </tr>
+
+        <tr>
+          <td colspan="3" class="h3 text-light-900">Total</td>
+          <td class="h3 text-success font-weight-bold text-info">
+            Rp {{ total }}
+          </td>
+        </tr>
+        </table>
+      </div>
         </b-modal>
       </div>
     </div>
   </section>
 </template>
+
 <script>
   module.exports = {
     data: function() {
@@ -183,6 +209,8 @@
         username: "",
         id_transaksi: "",
         nama_member: "",
+        id_outlet: "",
+        nama_outlet: "",
         tgl: "",
         status: "",
         dibayar: "",
@@ -200,6 +228,7 @@
         list_months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       }
     },
+
     methods: {
       getData: function() {
         let config = {
@@ -214,10 +243,12 @@
         }
         axios.post(base_url + 'transaksi/report', form, config).then(response => {
           this.transaksi = response.data.data;
+          this.status = response.data.status;
         }).catch(error => {
           console.log(error);
         });
       },
+
       getRole: function() {
         let config = {
           headers: {
@@ -228,9 +259,19 @@
           if (response.data.success == true) {
             this.username = response.data.data.username;
             this.role = response.data.data.role;
+          
+          // Get Nama Outlet 
+            axios.get(base_url + "outlet/" + response.data.data.id_outlet, config).then(response2 => {
+              if (response2.data.success == true) {
+                this.nama_outlet = response2.data.data.nama_outlet;
+              }
+            }).catch(error => {
+              console.log(error);
+            });
           }
-        })
+        });
       },
+
       changeStatus: function(id_transaksi, event) {
         let conf = {
           headers: {
@@ -248,6 +289,7 @@
           console.log(error);
         });
       },
+
       changeBayar: function(id_transaksi, event) {
         let conf = {
           headers: {
@@ -265,13 +307,14 @@
           console.log(error);
         });
       },
+
       detail: function(detail_transaksi, total) {
         this.total = total;
         this.detail_transaksi = detail_transaksi;
       },
+
       cetak: function() {
         const prtHtml = document.getElementById('print').innerHTML;
-        //console.log(prtHtml);
         let stylesHtml = '';
         for (const node of [...document.querySelectorAll('link[rel="stylesheet"], style')]) {
           stylesHtml += node.outerHTML;
@@ -293,6 +336,7 @@
         WinPrint.close();
       }
     },
+
     mounted() {
       this.getData();
       this.getRole();

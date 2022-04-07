@@ -70,7 +70,6 @@
           imageUrl: "src/assets/img/loading-washing-machine.gif",
           showImage: true,
           showConfirmButton: false,
-          timer: 1233000,
           onOpen: () => {
             swal.showLoading();
             swal.showImage();
