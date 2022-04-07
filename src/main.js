@@ -79,10 +79,11 @@ var app = new Vue({
     router: routers,
     methods: {
         CekToken: function() {
-            //cek apakah sudah punya token
+
+            // Token Check
             if (this.$cookies.isKey('Authorization')) {
 
-                //validasi token dulu
+                // Token Validation
                 let config = {
                     headers: {
                         "Authorization": "Bearer " + this.$cookies.get('Authorization')
@@ -91,9 +92,9 @@ var app = new Vue({
 
                 axios.get(base_url + 'login/check', config)
                     .then(response => {
-                        //console.log(response)
                         if (response.data.success == true) {
-                            // load component home
+
+                            // Load Component Home
                             this.componentName = "apps";
                             this.id_user = response.data.data.id;
                             this.id_outlet = response.data.data.id_outlet;
@@ -106,9 +107,7 @@ var app = new Vue({
                         }
                     })
 
-                //header: "Bearer " + this.$cookies.get('Authorization')
-
-            } else { //kalau tidak punya, langsung ke login
+            } else {
                 this.componentName = "login";
             }
         }
